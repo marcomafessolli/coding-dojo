@@ -6,15 +6,19 @@
 
     <body>
         <div id="root">
-            <p>Tempooo: <span id="time"></span></p>
             <label for="input-word">
                 Insira a zuera
             </label>
 
             <input id="input-word" />
             <div id="words-list"></div>
-            <div id="stop-text"></div>
         </div>
         <script src="keyword-shell.js"></script>
+        <script>
+            KeyWords({
+                listId: "#words-list",
+                inputId: "#input-word",
+            });
+        </script>
     </body>
 </html>

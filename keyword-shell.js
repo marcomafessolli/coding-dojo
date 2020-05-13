@@ -1,67 +1,82 @@
 import { isWordInDictionary } from "./src/keywords";
 
-const dictionary = new Map([["if", false], ["else", false], ["while", false]]);
+const dictionary = new Map([
+    ["if", false],
+    ["else", false],
+    ["while", false],
+]);
 
 let dictionaryList;
+let wordInput;
 
-const renderApp = containerElement => {
-  const wordInput = document.createElement("div");
-  dictionaryList = document.createElement("div");
+const bootstrapApp = ({ listId, inputId }) => {
+    dictionaryList = document.querySelector(listId);
+    wordInput = document.querySelector(inputId);
 
-  containerElement.appendChild(wordInput);
-  containerElement.appendChild(dictionaryList);
-
-  renderInput(wordInput);
-  renderList(dictionaryList);
+    addListeners(wordInput);
+    renderList(dictionaryList);
 };
 
-const renderInput = inputElement => {
-  inputElement.innerHTML = "";
+const renderList = (dictionaryListElement) => {
+    dictionaryListElement.innerHTML = "";
+    const list = document.createElement("ul");
 
-  const label = document.createElement("label");
-  label.setAttribute("for", "inputWord");
-  label.innerHTML = "Insira a zuera";
-  inputElement.appendChild(label);
-
-  const input = document.createElement("input");
-  input.id = "inputWord";
-
-  addListeners(input);
-  inputElement.appendChild(input);
-};
-
-const renderList = dictionaryListElement => {
-
-  if (!dictionaryListElement) return;
-
-  dictionaryListElement.innerHTML = "";
-  const list = document.createElement("ul");
-
-  dictionaryListElement.appendChild(list);
-
-  dictionary.forEach((isWordFound, word) => {
-    const wordFoundElement = document.createElement("li");
-    wordFoundElement.innerHTML = isWordFound ? word : "";
-    list.appendChild(wordFoundElement);
-  });
+    dictionaryListElement.appendChild(list);
+    dictionary.forEach((isWordFound, word) => {
+        const wordFoundElement = document.createElement("li");
+        wordFoundElement.innerHTML = isWordFound ? word : "";
+        list.appendChild(wordFoundElement);
+    });
 };
 
 const handleChange = ({ value, target }) => {
-  if (isWordInDictionary({ value, dictionary })) {
+    console.log({ value });
+    if (!isWordInDictionary({ word: value, dictionary })) {
+        return;
+    }
+
     dictionary.set(value, true);
     target.value = "";
     renderList(dictionaryList);
-  }
 };
 
-const addListeners = wordInputElement => {
-  wordInputElement.addEventListener("keyup", event =>
-    handleChange(event.target)
-  );
+const addListeners = (wordInputElement) => {
+    wordInputElement.addEventListener("keyup", (event) =>
+        handleChange({
+            value: event.target.value,
+            target: event.target,
+        })
+    );
 };
 
-setTimeout(() => {
-  renderApp(document.getElementById("root"));
+const KeyWords = () => {};
+
+bootstrapApp({
+    listId: "#words-list",
+    inputId: "#input-word",
+});
+
+const startTime = 5;
+let timeLeft = startTime;
+
+const clock = () => {
+    return (timeLeft -= 1);
+};
+
+const interval = setInterval(() => {
+    const currentClock = clock();
+    const seconds = currentClock % 60;
+    const minutes = currentClock / 60;
+    document.querySelector("#time").innerText =
+        Math.trunc(minutes) + ":" + seconds.toString().padStart(2, "0");
+
+    if (minutes === 0 && seconds === 0) {
+        clearInterval(interval);
+        document.querySelector(
+            "#stop-text"
+        ).innerHTML = `<p style="font-size: 10em;">STOP!</p>`;
+        wordInput.disabled = true;
+    }
 }, 1000);
 
-export { renderApp };
+export { bootstrapApp, KeyWords };

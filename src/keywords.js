@@ -1,5 +1,5 @@
 const isWordInDictionary = ({ word, dictionary }) => {
-  return dictionary.has(word);
+    return dictionary.has(word);
 };
 
 export { isWordInDictionary };
