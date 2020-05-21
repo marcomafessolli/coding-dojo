@@ -1,4 +1,5 @@
 import { isWordInDictionary } from "./src/keywords";
+import { Timer } from './src/timer';
 
 const dictionary = new Map([
     ["if", false],
@@ -8,6 +9,22 @@ const dictionary = new Map([
 
 let dictionaryList;
 let wordInput;
+let initialTimeLeft = 5;
+
+let timer = new Timer({
+    initialTimeLeft
+});
+
+const onDone = () => {
+    document.querySelector(
+        "#stop-text"
+    ).innerHTML = `<p style="font-size: 10em;">STOP!</p>`;
+    wordInput.disabled = true;
+}
+
+const onUpdate = ({ minutes, seconds }) => {
+    document.querySelector("#time").innerText = minutes + ":" + seconds.toString().padStart(2, "0");
+}
 
 const bootstrapApp = ({ listId, inputId }) => {
     dictionaryList = document.querySelector(listId);
@@ -15,7 +32,15 @@ const bootstrapApp = ({ listId, inputId }) => {
 
     addListeners(wordInput);
     renderList(dictionaryList);
+
+    onUpdate(Timer.format(initialTimeLeft));
+
+    timer
+        .onDone(onDone)
+        .onUpdate(onUpdate)
+        .start();
 };
+
 
 const renderList = (dictionaryListElement) => {
     dictionaryListElement.innerHTML = "";
@@ -30,7 +55,6 @@ const renderList = (dictionaryListElement) => {
 };
 
 const handleChange = ({ value, target }) => {
-    console.log({ value });
     if (!isWordInDictionary({ word: value, dictionary })) {
         return;
     }
@@ -49,34 +73,9 @@ const addListeners = (wordInputElement) => {
     );
 };
 
-const KeyWords = () => {};
-
 bootstrapApp({
     listId: "#words-list",
     inputId: "#input-word",
 });
 
-const startTime = 5;
-let timeLeft = startTime;
-
-const clock = () => {
-    return (timeLeft -= 1);
-};
-
-const interval = setInterval(() => {
-    const currentClock = clock();
-    const seconds = currentClock % 60;
-    const minutes = currentClock / 60;
-    document.querySelector("#time").innerText =
-        Math.trunc(minutes) + ":" + seconds.toString().padStart(2, "0");
-
-    if (minutes === 0 && seconds === 0) {
-        clearInterval(interval);
-        document.querySelector(
-            "#stop-text"
-        ).innerHTML = `<p style="font-size: 10em;">STOP!</p>`;
-        wordInput.disabled = true;
-    }
-}, 1000);
-
-export { bootstrapApp, KeyWords };
+export { bootstrapApp };
