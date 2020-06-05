@@ -2,28 +2,30 @@ class Timer {
     constructor({ initialTimeLeft }) {
         this.initialTimeLeft = initialTimeLeft || 60;
         this.timeLeft = this.initialTimeLeft;
-        this.interval = null
+        this.interval = null;
     }
 
     start() {
-        this.interval = setInterval(() => {
-            const currentClock = this.timeLeft - 1;
-            this.timeLeft = currentClock;
+        if (!this.interval) {
+            this.interval = setInterval(() => {
+                const currentClock = this.timeLeft - 1;
+                this.timeLeft = currentClock;
 
-            const { minutes, seconds } = Timer.format(currentClock);
+                const { minutes, seconds } = Timer.format(currentClock);
 
-            if (minutes === 0 && seconds === 0) {
-                this.stop();
+                if (minutes === 0 && seconds === 0) {
+                    this.stop();
 
-                if (typeof(this.onDoneCallback) == 'function') {
-                    this.onDoneCallback();
+                    if (typeof this.onDoneCallback == "function") {
+                        this.onDoneCallback();
+                    }
                 }
-            }
 
-            if (typeof(this.onUpdateCallback) == 'function') {
-                this.onUpdateCallback({ minutes, seconds });
-            }
-        }, 1000);
+                if (typeof this.onUpdateCallback == "function") {
+                    this.onUpdateCallback({ minutes, seconds });
+                }
+            }, 1000);
+        }
 
         return this;
     }
@@ -31,12 +33,18 @@ class Timer {
     reset() {
         this.stop();
         this.timeLeft = this.initialTimeLeft;
+        this.interval = null;
+        const { minutes, seconds } = Timer.format(this.timeLeft);
+
+        if (typeof this.onUpdateCallback == "function") {
+            this.onUpdateCallback({ minutes, seconds });
+        }
 
         return this;
     }
 
     onDone(callback) {
-        if (typeof(callback) == 'function') {
+        if (typeof callback == "function") {
             this.onDoneCallback = callback;
         }
 
@@ -44,7 +52,7 @@ class Timer {
     }
 
     onUpdate(callback) {
-        if (typeof(callback) == 'function') {
+        if (typeof callback == "function") {
             this.onUpdateCallback = callback;
         }
 
@@ -59,7 +67,7 @@ class Timer {
         const minutes = Math.trunc(time / 60);
         const seconds = time % 60;
 
-        return { minutes, seconds }
+        return { minutes, seconds };
     }
 }
 
